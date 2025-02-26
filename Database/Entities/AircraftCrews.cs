@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Database.Entities;
 
 [Table("AIRCRAFT_CREW_JT")]
-public class AircraftCrew
+public class AircraftCrews
 {
     public Aircraft? Aircraft { get; set; }
     

@@ -1,6 +1,7 @@
-﻿namespace Repository.SpecifiedRepositories;
+﻿using Database.Context;
+using Database.Entities;
+using Repository.Repository;
 
-public class MercenaryRepository
-{
-    
-}
+namespace Repository.SpecifiedRepositories;
+
+public class MercenaryRepository(AircraftContext context): ARepository<Mercenary>(context) { }

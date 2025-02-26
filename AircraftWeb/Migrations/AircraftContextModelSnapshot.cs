@@ -52,7 +52,7 @@ namespace AircraftWeb.Migrations
                     b.ToTable("AIRCRAFTS");
                 });
 
-            modelBuilder.Entity("Database.Entities.AircraftCrew", b =>
+            modelBuilder.Entity("Database.Entities.AircraftCrews", b =>
                 {
                     b.Property<int>("AircraftId")
                         .HasColumnType("INTEGER")
@@ -283,7 +283,7 @@ namespace AircraftWeb.Migrations
                     b.Navigation("Specification");
                 });
 
-            modelBuilder.Entity("Database.Entities.AircraftCrew", b =>
+            modelBuilder.Entity("Database.Entities.AircraftCrews", b =>
                 {
                     b.HasOne("Database.Entities.Aircraft", "Aircraft")
                         .WithMany("Crew")

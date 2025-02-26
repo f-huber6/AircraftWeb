@@ -9,6 +9,7 @@ using Repository.SpecifiedRepositories;
 var builder = WebApplication.CreateBuilder(args);
 var assembly = Assembly.GetExecutingAssembly();
 var conf = builder.Configuration;
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -23,6 +24,8 @@ builder.Services.AddDbContext<AircraftContext>(options =>
 });
 
 builder.Services.AddScoped<IRepository<Aircraft>, AircraftRepository>();
+builder.Services.AddScoped<IRepository<Mercenary>, MercenaryRepository>();
+builder.Services.AddScoped<IRepository<AircraftCrews>, AircraftCrewRepository>();
 
 var app = builder.Build();
 

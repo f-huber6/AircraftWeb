@@ -1,6 +1,105 @@
-﻿@page "/EditAircraftCrew"
-<h3>EditAircraftCrew</h3>
+﻿@page "/aircraft-crews/edit/{aircraftId:int}/{mercenaryId:int}"
+@using Database.Entities
+@using Repository.Interfaces
+@inject IRepository<AircraftCrews> AircraftCrewRepository
+@inject IRepository<Aircraft> AircraftRepository
+@inject IRepository<Mercenary> MercenaryRepository
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Edit Aircraft Crew</PageTitle>
+
+<h3>Edit Aircraft Crew</h3>
+
+@if (aircraftCrew is null)
+{
+    <div class="alert alert-danger">Aircraft Crew not found.</div>
+}
+else
+{
+    <form @onsubmit="SaveAircraftCrew">
+        <div class="mb-3">
+            <label class="form-label">Aircraft</label>
+            <select class="form-select" @bind="selectedAircraftId">
+                @foreach (var aircraft in _aircrafts)
+                {
+                    <option value="@aircraft.AircraftId">@aircraft.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Mercenary</label>
+            <select class="form-select" @bind="selectedMercenaryId">
+                @foreach (var mercenary in _mercenaries)
+                {
+                    <option value="@mercenary.MercenaryId">@mercenary.Firstname @mercenary.Lastname</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Joined At</label>
+            <input type="date" class="form-control" @bind="selectedJoinedAt" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="CancelEdit">Cancel</button>
+    </form>
+}
 
 @code {
-    
+    [Parameter] public int aircraftId { get; set; }
+    [Parameter] public int mercenaryId { get; set; }
+
+    private AircraftCrews? aircraftCrew;
+    private List<Aircraft>? _aircrafts;
+    private List<Mercenary>? _mercenaries;
+
+    private int selectedAircraftId;
+    private int selectedMercenaryId;
+    private DateTime selectedJoinedAt = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _aircrafts = await AircraftRepository.ReadAllAsync();
+        _mercenaries = await MercenaryRepository.ReadAllAsync();
+        aircraftCrew = (await AircraftCrewRepository.ReadAllAsync()).FirstOrDefault(c => c.AircraftId == aircraftId && c.MercenaryId == mercenaryId);
+
+        if (aircraftCrew is null)
+        {
+            return;
+        }
+        
+        selectedAircraftId = aircraftCrew.AircraftId;
+        selectedMercenaryId = aircraftCrew.MercenaryId;
+        selectedJoinedAt = aircraftCrew.JoinedAt;
+    }
+
+    private async Task SaveAircraftCrew(EventArgs e)
+    {
+        if (aircraftCrew is null)
+        {
+            Console.WriteLine("Save failed: aircraftCrew is null.");
+            return;
+        }
+
+        Console.WriteLine($"Updating aircraft crew: {aircraftCrew.AircraftId} - {aircraftCrew.MercenaryId} - {aircraftCrew.JoinedAt}");
+
+        try
+        {
+            await AircraftCrewRepository.UpdateAsync(aircraftCrew);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ignoring exception while updating aircraft crew: {ex.Message}");
+        }
+
+        Navigation.NavigateTo("/aircraft-crews");
+    }
+
+    private void CancelEdit()
+    {
+        Navigation.NavigateTo("/aircraft-crews");
+    }
 }

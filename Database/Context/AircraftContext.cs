@@ -12,13 +12,13 @@ public class AircraftContext: DbContext
     public DbSet<Compartment> Compartments { get; set; }
     public DbSet<Machinery> Machineries { get; set; }
     public DbSet<Mercenary> Mercenaries { get; set; }
-    public DbSet<AircraftCrew> AircraftCrews { get; set; }
+    public DbSet<AircraftCrews> AircraftCrews { get; set; }
     public DbSet<CrimeSyndicate> CrimeSyndicates { get; set; }
     public DbSet<MercenaryReputation> MercenaryReputations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AircraftCrew>()
+        modelBuilder.Entity<AircraftCrews>()
             .HasKey(ac => new { ac.AircraftId, ac.MercenaryId });
         
         modelBuilder.Entity<MercenaryReputation>()
@@ -39,12 +39,12 @@ public class AircraftContext: DbContext
             .WithMany(c => c.Machineries)
             .HasForeignKey(m => m.CompartmentId);
         
-        modelBuilder.Entity<AircraftCrew>()
+        modelBuilder.Entity<AircraftCrews>()
             .HasOne(ac => ac.Aircraft)
             .WithMany(a => a.Crew)
             .HasForeignKey(ac => ac.AircraftId);
         
-        modelBuilder.Entity<AircraftCrew>()
+        modelBuilder.Entity<AircraftCrews>()
             .HasOne(ac => ac.Mercenary)
             .WithMany(m => m.Crews)
             .HasForeignKey(ac => ac.MercenaryId);

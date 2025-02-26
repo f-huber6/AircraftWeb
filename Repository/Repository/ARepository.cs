@@ -21,10 +21,13 @@ public class ARepository<TEntity>(AircraftContext context) : IRepository<TEntity
         return list;
     }
 
-    public async Task UpdateAsync(int id, TEntity t)
+    public async Task UpdateAsync(TEntity t)
     {
-        var existingEntity = await context.Set<TEntity>().FindAsync(id) ?? throw new KeyNotFoundException("Entity not found");
-        context.Entry(existingEntity).CurrentValues.SetValues(t);
+        if (t == null)
+        {
+            throw new ArgumentNullException(nameof(t), "Entity cannot be null");
+        }
+        context.Set<TEntity>().Update(t);
         await context.SaveChangesAsync();
     }
 
@@ -40,10 +43,14 @@ public class ARepository<TEntity>(AircraftContext context) : IRepository<TEntity
     public virtual async Task<List<TEntity>> ReadAsync(Expression<Func<TEntity, bool>> filter) =>
         await context.Set<TEntity>().Where(filter).ToListAsync();
 
-    public async Task DeleteAsync(int id, TEntity t)
+    public async Task DeleteAsync(TEntity t)
     {
-        var existingEntity = await context.Set<TEntity>().FindAsync(id) ?? throw new KeyNotFoundException("Entity not found");
-        context.Set<TEntity>().Remove(existingEntity);
+        if (t == null)
+        {
+            throw new ArgumentNullException(nameof(t), "Entity cannot be null");
+        }
+
+        context.Set<TEntity>().Remove(t);
         await context.SaveChangesAsync();
     }
 

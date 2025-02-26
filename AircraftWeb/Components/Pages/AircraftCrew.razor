@@ -1,13 +1,17 @@
-﻿@page "/AircraftCrew"
+﻿@page "/aircraft-crews"
 @using Database.Entities
 @using Repository.Interfaces
+@inject IRepository<AircraftCrews> AircraftCrewRepository
 @inject IRepository<Aircraft> AircraftRepository
+@inject IRepository<Mercenary> MercenaryRepository
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
 
-<h3>AircraftCrew</h3>
+<PageTitle>Aircraft Crews</PageTitle>
 
-<h3 class="text-center mt-4">Aircraft List</h3>
+<h3 class="text-center fw-bold">Aircraft Crews</h3>
 
-@if (_aircrafts!.Any())
+@if (!_aircraftCrews!.Any())
 {
     <div class="alert alert-warning text-center" role="alert">
         No aircrafts found.
@@ -16,38 +20,142 @@
 else
 {
     <div class="container mt-4">
-        <table class="table table-hover table-bordered shadow-sm">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Speed</th>
-                <th>Altitude</th>
-                <th>Fuel</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var aircraft in _aircrafts)
-            {
+        <div style="max-height: 300px; overflow-y: auto;">
+            <table class="table table-hover table-bordered shadow-sm">
+                <thead class="table-dark" style="position: sticky; top: 0; background-color: #343a40;">
                 <tr>
-                    <td>@aircraft.AircraftId</td>
-                    <td>@aircraft.Name</td>
-                    <td>@aircraft.Speed km/h</td>
-                    <td>@aircraft.Altitude m</td>
-                    <td>@aircraft.Fuel L</td>
+                    <th>Name</th>
+                    <th>Speed</th>
+                    <th>Altitude</th>
+                    <th>Fuel</th>
+                    <th>First name</th>
+                    <th>Last name</th>
+                    <th>Body Skills</th>
+                    <th>Combat Skill</th>
+                    <th>Joined at</th>
+                    <th>Actions</th>
                 </tr>
-            }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @foreach (var aircraftCrew in _aircraftCrews)
+                {
+                    <tr>
+                        <td>@aircraftCrew.Aircraft.Name</td>
+                        <td>@aircraftCrew.Aircraft.Speed</td>
+                        <td>@aircraftCrew.Aircraft.Altitude</td>
+                        <td>@aircraftCrew.Aircraft.Fuel</td>
+                        <td>@aircraftCrew.Mercenary.Firstname</td>
+                        <td>@aircraftCrew.Mercenary.Lastname</td>
+                        <td>@aircraftCrew.Mercenary.BodySkills</td>
+                        <td>@aircraftCrew.Mercenary.CombatSkills</td>
+                        <td>@aircraftCrew.JoinedAt.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm mx-1"
+                                    @onclick="() => RedirectToEdit(aircraftCrew)">
+                                Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm mx-1" @onclick="() => DeleteAircraftCrew(aircraftCrew.AircraftId, aircraftCrew.MercenaryId)">Delete</button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
     </div>
 }
 
+<hr />
+<h4>Add Aircraft Crew</h4>
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+<div class="container mb-3">
+    <div class="mb-3">
+        <label for="aircraft" class="form-label">Select Aircraft</label>
+        <select id="aircraft" class="form-select" @bind="_selectedAircraftId">
+            <option value="">-- Select an Aircraft --</option>
+            @foreach (var aircraft in _aircrafts)
+            {
+                <option value="@aircraft.AircraftId">@aircraft.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="mercenary" class="form-label">Select Mercenary</label>
+        <select id="mercenary" class="form-select" @bind="_selectedMercenaryId">
+            <option value="">-- Select a Mercenary --</option>
+            @foreach (var mercenary in _mercenaries)
+            {
+                <option value="@mercenary.MercenaryId">@mercenary.Firstname @mercenary.Lastname</option>
+            }
+        </select>
+    </div>
+
+    <button class="btn btn-success" @onclick="AddAircraftCrew">Add Crew</button>
+</div>
 
 @code {
+    private List<AircraftCrews>? _aircraftCrews;
     private List<Aircraft>? _aircrafts;
+    private List<Mercenary>? _mercenaries;
+    private int? _selectedAircraftId;
+    private int? _selectedMercenaryId;
+    private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        
+        _aircraftCrews = await AircraftCrewRepository.ReadAllAsync();
         _aircrafts = await AircraftRepository.ReadAllAsync();
+        _mercenaries = await MercenaryRepository.ReadAllAsync();
+    }
+
+    private async Task DeleteAircraftCrew(int aircraftId, int mercenaryId)
+    {
+        var crewToDelete = _aircraftCrews.FirstOrDefault(c => c.AircraftId == aircraftId && c.MercenaryId == mercenaryId);
+        Console.WriteLine("Found crew to delete: " + crewToDelete);
+        
+        if (crewToDelete is not null)
+        {
+            await AircraftCrewRepository.DeleteAsync(crewToDelete);
+            _aircraftCrews.Remove(crewToDelete);
+            StateHasChanged();
+        }
+    }
+
+    private void RedirectToEdit(AircraftCrews aircraftCrew)
+    {
+        Navigation.NavigateTo($"/aircraft-crews/edit/{aircraftCrew.AircraftId}/{aircraftCrew.MercenaryId}", true);
+    }
+
+    private async Task AddAircraftCrew()
+    {
+        if (_selectedAircraftId == null || _selectedMercenaryId == null)
+        {
+            _errorMessage = "Please select both an Aircraft and a Mercenary.";
+            return;
+        }
+
+        if (_aircraftCrews.Any(ac => ac.AircraftId == _selectedAircraftId && ac.MercenaryId == _selectedMercenaryId))
+        {
+            _errorMessage = "This Aircraft and Mercenary combination already exists.";
+            return;
+        }
+
+        var newCrew = new AircraftCrews
+        {
+            AircraftId = _selectedAircraftId.Value,
+            MercenaryId = _selectedMercenaryId.Value,
+            JoinedAt = DateTime.UtcNow
+        };
+
+        await AircraftCrewRepository.CreateAsync(newCrew);
+        _aircraftCrews.Add(newCrew);
+        _errorMessage = null;
+        StateHasChanged();
     }
 }

@@ -21,7 +21,7 @@ public class Mercenary
     [Column("CombatSkills"), Required]
     public int CombatSkills { get; set; }
     
-    public ICollection<AircraftCrew>? Crews { get; set; }
+    public ICollection<AircraftCrews>? Crews { get; set; }
     
     public ICollection<MercenaryReputation>? Reputations { get; set; }
 }

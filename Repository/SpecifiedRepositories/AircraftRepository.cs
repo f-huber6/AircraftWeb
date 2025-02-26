@@ -4,7 +4,4 @@ using Repository.Repository;
 
 namespace Repository.SpecifiedRepositories;
 
-public class AircraftRepository(AircraftContext context): ARepository<Aircraft>(context)
-{
-    private readonly AircraftContext _context = context;
-}
+public class AircraftRepository(AircraftContext context): ARepository<Aircraft>(context) { }

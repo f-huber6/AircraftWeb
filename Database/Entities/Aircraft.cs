@@ -27,6 +27,6 @@ public class Aircraft
     public int SpecificationId { get; set; }
     
     public ICollection<Compartment>? Compartments { get; set; }
-    public ICollection<AircraftCrew>? Crew { get; set; }
+    public ICollection<AircraftCrews>? Crew { get; set; }
     
 }
