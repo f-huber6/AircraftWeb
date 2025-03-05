@@ -18,6 +18,13 @@ public class AircraftContext: DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Aircraft>()
+            .Navigation(a => a.Specification).AutoInclude();
+        modelBuilder.Entity<Aircraft>()
+            .Navigation(a => a.Compartments).AutoInclude();
+        modelBuilder.Entity<Compartment>()
+            .Navigation(c => c.Machineries).AutoInclude();
+        
         modelBuilder.Entity<AircraftCrews>()
             .HasKey(ac => new { ac.AircraftId, ac.MercenaryId });
         
