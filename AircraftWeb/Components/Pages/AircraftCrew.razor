@@ -37,14 +37,14 @@ else
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var aircraftCrew in _aircraftCrews)
+                @foreach (var aircraftCrew in _aircraftCrews!)
                 {
                     <tr>
-                        <td>@aircraftCrew.Aircraft.Name</td>
+                        <td>@aircraftCrew.Aircraft!.Name</td>
                         <td>@aircraftCrew.Aircraft.Speed</td>
                         <td>@aircraftCrew.Aircraft.Altitude</td>
                         <td>@aircraftCrew.Aircraft.Fuel</td>
-                        <td>@aircraftCrew.Mercenary.Firstname</td>
+                        <td>@aircraftCrew.Mercenary!.Firstname</td>
                         <td>@aircraftCrew.Mercenary.Lastname</td>
                         <td>@aircraftCrew.Mercenary.BodySkills</td>
                         <td>@aircraftCrew.Mercenary.CombatSkills</td>
@@ -77,7 +77,7 @@ else
         <label for="aircraft" class="form-label">Select Aircraft</label>
         <select id="aircraft" class="form-select" @bind="_selectedAircraftId">
             <option value="">-- Select an Aircraft --</option>
-            @foreach (var aircraft in _aircrafts)
+            @foreach (var aircraft in _aircrafts!)
             {
                 <option value="@aircraft.AircraftId">@aircraft.Name</option>
             }
@@ -88,7 +88,7 @@ else
         <label for="mercenary" class="form-label">Select Mercenary</label>
         <select id="mercenary" class="form-select" @bind="_selectedMercenaryId">
             <option value="">-- Select a Mercenary --</option>
-            @foreach (var mercenary in _mercenaries)
+            @foreach (var mercenary in _mercenaries!)
             {
                 <option value="@mercenary.MercenaryId">@mercenary.Firstname @mercenary.Lastname</option>
             }
@@ -116,13 +116,13 @@ else
 
     private async Task DeleteAircraftCrew(int aircraftId, int mercenaryId)
     {
-        var crewToDelete = _aircraftCrews.FirstOrDefault(c => c.AircraftId == aircraftId && c.MercenaryId == mercenaryId);
+        var crewToDelete = _aircraftCrews?.FirstOrDefault(c => c.AircraftId == aircraftId && c.MercenaryId == mercenaryId);
         Console.WriteLine("Found crew to delete: " + crewToDelete);
         
         if (crewToDelete is not null)
         {
             await AircraftCrewRepository.DeleteAsync(crewToDelete);
-            _aircraftCrews.Remove(crewToDelete);
+            _aircraftCrews?.Remove(crewToDelete);
             StateHasChanged();
         }
     }
@@ -140,7 +140,7 @@ else
             return;
         }
 
-        if (_aircraftCrews.Any(ac => ac.AircraftId == _selectedAircraftId && ac.MercenaryId == _selectedMercenaryId))
+        if (_aircraftCrews!.Any(ac => ac.AircraftId == _selectedAircraftId && ac.MercenaryId == _selectedMercenaryId))
         {
             _errorMessage = "This Aircraft and Mercenary combination already exists.";
             return;
@@ -154,7 +154,7 @@ else
         };
 
         await AircraftCrewRepository.CreateAsync(newCrew);
-        _aircraftCrews.Add(newCrew);
+        _aircraftCrews?.Add(newCrew);
         _errorMessage = null;
         StateHasChanged();
     }
