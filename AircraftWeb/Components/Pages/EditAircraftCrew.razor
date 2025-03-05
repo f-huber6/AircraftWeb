@@ -11,7 +11,7 @@
 
 <h3>Edit Aircraft Crew</h3>
 
-@if (aircraftCrew is null)
+@if (_aircraftCrew is null)
 {
     <div class="alert alert-danger">Aircraft Crew not found.</div>
 }
@@ -20,8 +20,8 @@ else
     <form @onsubmit="SaveAircraftCrew">
         <div class="mb-3">
             <label class="form-label">Aircraft</label>
-            <select class="form-select" @bind="selectedAircraftId">
-                @foreach (var aircraft in _aircrafts)
+            <select class="form-select" @bind="_selectedAircraftId">
+                @foreach (var aircraft in _aircrafts!)
                 {
                     <option value="@aircraft.AircraftId">@aircraft.Name</option>
                 }
@@ -30,8 +30,8 @@ else
 
         <div class="mb-3">
             <label class="form-label">Mercenary</label>
-            <select class="form-select" @bind="selectedMercenaryId">
-                @foreach (var mercenary in _mercenaries)
+            <select class="form-select" @bind="_selectedMercenaryId">
+                @foreach (var mercenary in _mercenaries!)
                 {
                     <option value="@mercenary.MercenaryId">@mercenary.Firstname @mercenary.Lastname</option>
                 }
@@ -40,7 +40,7 @@ else
 
         <div class="mb-3">
             <label class="form-label">Joined At</label>
-            <input type="date" class="form-control" @bind="selectedJoinedAt" />
+            <input type="date" class="form-control" @bind="_selectedJoinedAt" />
         </div>
 
         <button type="submit" class="btn btn-primary">Update</button>
@@ -49,46 +49,46 @@ else
 }
 
 @code {
-    [Parameter] public int aircraftId { get; set; }
-    [Parameter] public int mercenaryId { get; set; }
+    [Parameter] public int AircraftId { get; set; }
+    [Parameter] public int MercenaryId { get; set; }
 
-    private AircraftCrews? aircraftCrew;
+    private AircraftCrews? _aircraftCrew;
     private List<Aircraft>? _aircrafts;
     private List<Mercenary>? _mercenaries;
 
-    private int selectedAircraftId;
-    private int selectedMercenaryId;
-    private DateTime selectedJoinedAt = DateTime.Now;
+    private int _selectedAircraftId;
+    private int _selectedMercenaryId;
+    private DateTime _selectedJoinedAt = DateTime.Now;
 
     protected override async Task OnInitializedAsync()
     {
         _aircrafts = await AircraftRepository.ReadAllAsync();
         _mercenaries = await MercenaryRepository.ReadAllAsync();
-        aircraftCrew = (await AircraftCrewRepository.ReadAllAsync()).FirstOrDefault(c => c.AircraftId == aircraftId && c.MercenaryId == mercenaryId);
+        _aircraftCrew = (await AircraftCrewRepository.ReadAllAsync()).FirstOrDefault(c => c.AircraftId == AircraftId && c.MercenaryId == MercenaryId);
 
-        if (aircraftCrew is null)
+        if (_aircraftCrew is null)
         {
             return;
         }
         
-        selectedAircraftId = aircraftCrew.AircraftId;
-        selectedMercenaryId = aircraftCrew.MercenaryId;
-        selectedJoinedAt = aircraftCrew.JoinedAt;
+        _selectedAircraftId = _aircraftCrew.AircraftId;
+        _selectedMercenaryId = _aircraftCrew.MercenaryId;
+        _selectedJoinedAt = _aircraftCrew.JoinedAt;
     }
 
     private async Task SaveAircraftCrew(EventArgs e)
     {
-        if (aircraftCrew is null)
+        if (_aircraftCrew is null)
         {
             Console.WriteLine("Save failed: aircraftCrew is null.");
             return;
         }
 
-        Console.WriteLine($"Updating aircraft crew: {aircraftCrew.AircraftId} - {aircraftCrew.MercenaryId} - {aircraftCrew.JoinedAt}");
+        Console.WriteLine($"Updating aircraft crew: {_aircraftCrew.AircraftId} - {_aircraftCrew.MercenaryId} - {_aircraftCrew.JoinedAt}");
 
         try
         {
-            await AircraftCrewRepository.UpdateAsync(aircraftCrew);
+            await AircraftCrewRepository.UpdateAsync(_aircraftCrew);
         }
         catch (Exception ex)
         {
