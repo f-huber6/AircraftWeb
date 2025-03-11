@@ -26,6 +26,7 @@ builder.Services.AddDbContext<AircraftContext>(options =>
 builder.Services.AddScoped<IRepository<Aircraft>, AircraftRepository>();
 builder.Services.AddScoped<IRepository<Mercenary>, MercenaryRepository>();
 builder.Services.AddScoped<IRepository<AircraftCrews>, AircraftCrewRepository>();
+builder.Services.AddScoped<IRepository<CrimeSyndicate>, CrimeSyndicateRepository>();
 
 var app = builder.Build();
 

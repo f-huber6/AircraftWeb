@@ -31,6 +31,13 @@ public class ARepository<TEntity>(AircraftContext context) : IRepository<TEntity
         await context.SaveChangesAsync();
     }
 
+    public async Task UpdateAsync(int id, TEntity t)
+    {
+        var entity = await context.Set<TEntity>().FindAsync(id);
+        context.Entry(entity!).CurrentValues.SetValues(t);
+        await context.SaveChangesAsync();
+    }
+
     public async Task UpdateRangeAsync(List<TEntity> list)
     {
         context.Set<TEntity>().UpdateRange(list);
@@ -51,6 +58,13 @@ public class ARepository<TEntity>(AircraftContext context) : IRepository<TEntity
         }
 
         context.Set<TEntity>().Remove(t);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id, TEntity t)
+    {
+        var entity = await context.Set<TEntity>().FindAsync(id);
+        context.Set<TEntity>().Remove(entity!);
         await context.SaveChangesAsync();
     }
 
